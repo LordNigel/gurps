@@ -30,7 +30,7 @@ import {
 } from '../lib/utilities.js'
 import { doRoll } from '../module/dierolls/dieroll.js'
 import { ResourceTrackerManager } from './actor/resource-tracker-manager.js'
-import { DamageTables, initializeDamageTables } from '../module/damage/damage-tables.js'
+import { DamageTable } from '../module/damage/damage-tables.js'
 import RegisterChatProcessors from '../module/chat/chat-processors.js'
 import { Migration } from '../lib/migration.js'
 import ManeuverHUDButton from './actor/maneuver-button.js'
@@ -2026,7 +2026,8 @@ if (!window.GURPS) {
     // GURPS.StatusEffect = new StatusEffect()
     // CONFIG.statusEffects = GURPS.StatusEffect.effects()
 
-    initializeDamageTables()
+    GURPS.DamageTables = new DamageTable()
+
     ResourceTrackerManager.initSettings()
     HitLocation.ready()
 
@@ -2105,10 +2106,10 @@ if (!window.GURPS) {
       .filter(it => !!it.tracker.isDamageType)
       .filter(it => !!it.tracker.alias)
       .map(it => it.tracker)
-    resourceTrackers.forEach(it => (DamageTables.damageTypeMap[it.alias] = it.alias))
+    resourceTrackers.forEach(it => (GURPS.DamageTables.damageTypeMap[it.alias] = it.alias))
     resourceTrackers.forEach(
       it =>
-        (DamageTables.woundModifiers[it.alias] = {
+        (GURPS.DamageTables.woundModifiers[it.alias] = {
           multiplier: 1,
           label: it.name,
           resource: true,
