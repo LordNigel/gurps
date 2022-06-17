@@ -72,9 +72,9 @@ import { gurpslink } from './utilities/gurpslink.js'
 
 let GURPS = window.GURPS ?? undefined
 
-if (!window.GURPS) {
+if (!globalThis.GURPS) {
   GURPS = {}
-  window.GURPS = GURPS // Make GURPS global!
+  globalThis.GURPS = GURPS // Make GURPS global!
   GURPS.DEBUG = true
   GURPS.Migration = Migration
   GURPS.BANNER = `
