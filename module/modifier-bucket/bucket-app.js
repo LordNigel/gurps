@@ -15,6 +15,7 @@ Hooks.once('init', async function () {
 
   // @ts-ignore -- Need to look into why a GurpsRoll isn't a Roll
   CONFIG.Dice.rolls.push(GurpsRoll)
+  CONFIG.Dice.terms["d"] = GurpsDie  // Hack to get Dice so nice working (it checks the terms["d"].name vs the Dice class name
 
   // MONKEY_PATCH
   // Patch DiceTerm.fromMatch to hi-jack the returned Die instances and in turn patch them to
@@ -63,24 +64,6 @@ Hooks.once('init', async function () {
     })
   }
 
-  // Listen for the Ctrl key and show the single dice image
-  /**
-   ** TODO  We need to discuss... currently, holding down the CTRL key will make a private roll for the GM (or a blind roll for the player).
-   ** TODO Can't you just talk to me before changing something???
-   ***
-  game.keybindings.register('gurps', 'toggleDiceDisplay', {
-    name: 'Toggle dice display',
-    uneditable: [{ key: 'ControlLeft' }, { key: 'ControlRight' }],
-    onDown: () => {
-      GURPS.ModifierBucket.showOneD6()
-    },
-    onUp: () => {
-      GURPS.ModifierBucket.showThreeD6()
-    },
-    precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
-    // "ControlLeft", "ControlRight"
-  })
-  */
 })
 
 Hooks.once('ready', async function () {

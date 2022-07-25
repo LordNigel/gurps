@@ -294,11 +294,11 @@ export class GurpsActor extends Actor {
     //   data.attributes.ST.value = Math.ceil(parseInt(data.attributes.ST.value.toString()) / 2)
     recurselist(data.skills, (e, k, d) => {
       // @ts-ignore
-      e.level = parseInt(+e.import)
+      if (!!e.import) e.level = parseInt(+e.import)
     })
     recurselist(data.spells, (e, k, d) => {
       // @ts-ignore
-      e.level = parseInt(+e.import)
+      if (!!e.import) e.level = parseInt(+e.import)
     })
 
     // we don't really need to use recurselist for melee/ranged... but who knows, they may become hierarchical in the future
@@ -1217,7 +1217,7 @@ export class GurpsActor extends Actor {
     return t
   }
 
-  importTraitsFromGCSv2(p, cd, md) {
+  async importTraitsFromGCSv2(p, cd, md) {
     if (!p) return
     let ts = {}
     ts.race = ''
@@ -1237,10 +1237,39 @@ export class GurpsActor extends Actor {
     ts.hair = p.hair || ''
     ts.skin = p.skin || ''
 
-    return {
+    const r = {
       'data.-=traits': null,
       'data.traits': ts,
+    };
+
+    if (!!p.portrait && game.settings.get(settings.SYSTEM_NAME, settings.SETTING_OVERWRITE_PORTRAITS)) {
+      const path = this.getPortraitPath();
+      let currentDir = "";
+      for (let i = 0; i < path.split("/").length; i++) {
+        try {
+          currentDir += path.split("/")[i] + "/";
+          await FilePicker.createDirectory("data", currentDir);
+        } catch (err) {
+          continue;
+        }
+      }
+        const filename = `${p.name}_${this.id}_portrait.png`.replaceAll(" ", "_");
+        const url = `data:image/png;base64,${p.portrait}`;
+        await fetch(url)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const file = new File([blob], filename);
+            FilePicker.upload("data", path, file, {}, { notify: false });
+          });
+          r.img = (path + "/" + filename).replaceAll(" ", "_").replaceAll("//", "/");
+      }
+      return r;
     }
+
+
+  getPortraitPath() {
+    if (game.settings.get(settings.SYSTEM_NAME, settings.SETTING_PORTRAIT_PATH) == "global") return "images/portraits/";
+    return `worlds/${game.world.id}/images/portraits`;
   }
 
   signedNum(x) {
@@ -1325,20 +1354,30 @@ export class GurpsActor extends Actor {
   }
 
   importSk(i, p) {
-    let s = new Skill()
-    s.name =
+    let name =
       i.name + (!!i.tech_level ? `/TL${i.tech_level}` : '') + (!!i.specialization ? ` (${i.specialization})` : '') ||
       'Skill'
+    if (i.type == 'technique' && !!i.default) {
+      let addition = ''
+      addition = ' (' + i.default.name
+      if (!!i.default.specialization) {
+        addition += ' (' + i.default.specialization + ')'
+      }
+      name += addition + ')'
+    }
+    let s = new Skill(name, '')
     s.pageRef(i.reference || '')
     s.uuid = i.id
     s.parentuuid = p
     if (['skill', 'technique'].includes(i.type)) {
       s.type = i.type.toUpperCase()
-      s.import = i.calc?.level || ''
+      s.import = !!i.calc ? i.calc.level : ''
       if (s.level == 0) s.level = ''
       s.points = i.points
       s.relativelevel = i.calc?.rsl
       s.notes = i.notes || ''
+    } else { // Usually containers
+      s.level = ''
     }
     let old = this._findElementIn('skills', s.uuid)
     this._migrateOtfsAndNotes(old, s, i.vtt_notes)
@@ -1474,8 +1513,8 @@ export class GurpsActor extends Actor {
     e.pageRef(i.reference || '')
     let old = this._findElementIn('equipment.carried', e.uuid)
     if (!old) old = this._findElementIn('equipment.other', e.uuid)
+    this._migrateOtfsAndNotes(old, e, i.vtt_notes)
     if (!!old) {
-      this._migrateOtfsAndNotes(old, e, i.vtt_notes)
       e.carried = old.carried
       e.equipped = old.equipped
       e.parentuuid = old.parentuuid
@@ -1707,7 +1746,7 @@ export class GurpsActor extends Actor {
     let p_total = total
     let p_race = 0
     for (let i of atts) p_atts += i.calc?.points
-    for (let i of ads) [p_ads, p_disads, p_quirks, p_race] = this.adPointCount(i, p_ads, p_disads, p_quirks, p_race)
+    for (let i of ads) [p_ads, p_disads, p_quirks, p_race] = this.adPointCount(i, p_ads, p_disads, p_quirks, p_race, true)
     for (let i of skills) p_skills = this.skPointCount(i, p_skills)
     for (let i of spells) p_spells = this.skPointCount(i, p_spells)
     p_unspent -= p_atts + p_ads + p_disads + p_quirks + p_skills + p_spells + p_race
@@ -1859,11 +1898,20 @@ export class GurpsActor extends Actor {
     return [i].concat(ch)
   }
 
-  adPointCount(i, ads, disads, quirks, race) {
+  adPointCount(i, ads, disads, quirks, race, toplevel = false) {
     if (i.type == 'advantage_container' && i.container_type == 'race') race += i.calc?.points
     else if (i.type == 'advantage_container' && i.container_type == 'alternative_abilities') ads += i.calc?.points
-    else if (i.type == 'advantage_container' && !!i.children?.length)
-      for (let j of i.children) [ads, disads, quirks, race] = this.adPointCount(j, ads, disads, quirks, race)
+    else if (i.type == 'advantage_container' && !!i.children?.length) {
+      var [a, d] = [0, 0]
+      for (let j of i.children) [a, d, quirks, race] = this.adPointCount(j, a, d, quirks, race)
+      if (toplevel) {
+        if (a > 0)
+          ads += a
+        else 
+          disads += a
+      } else
+        ads += a + d
+    }
     else if (i.calc?.points == -1) quirks += i.calc?.points
     else if (i.calc?.points > 0) ads += i.calc?.points
     else disads += i.calc?.points
@@ -1930,7 +1978,7 @@ export class GurpsActor extends Actor {
     try {
       commit = { ...commit, ...{ 'data.additionalresources': ar } }
       commit = { ...commit, ...(await this.importAttributesFromGCSv2(r.attributes, r.equipment, r.calc)) }
-      commit = { ...commit, ...this.importTraitsFromGCSv2(r.profile, r.created_date, r.modified_date) }
+      commit = { ...commit, ...(await this.importTraitsFromGCSv2(r.profile, r.created_date, r.modified_date)) }
       commit = { ...commit, ...this.importSizeFromGCSv1(commit, r.profile, r.advantages, r.skills, r.equipment) }
       commit = { ...commit, ...this.importAdsFromGCSv3(r.advantages) }
       commit = { ...commit, ...this.importSkillsFromGCSv2(r.skills) }
@@ -2722,8 +2770,8 @@ export class GurpsActor extends Actor {
         eqt.pageRef(t(j.pageref))
         let old = this._findElementIn('equipment.carried', eqt.uuid)
         if (!old) old = this._findElementIn('equipment.other', eqt.uuid)
+        this._migrateOtfsAndNotes(old, eqt)
         if (!!old) {
-          this._migrateOtfsAndNotes(old, eqt)
           eqt.carried = old.carried
           eqt.equipped = old.equipped
           eqt.parentuuid = old.parentuuid

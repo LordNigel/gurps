@@ -12,7 +12,7 @@ import {
   RemoteChatProcessor,
 } from './everything.js'
 import { IfChatProcessor } from './if.js'
-import { isNiceDiceEnabled, i18n, splitArgs, makeRegexPatternFrom, wait, zeroFill, locateToken, requestFpHp } from '../../lib/utilities.js'
+import { isNiceDiceEnabled, i18n, i18n_f, splitArgs, makeRegexPatternFrom, wait, zeroFill, locateToken, requestFpHp } from '../../lib/utilities.js'
 import StatusChatProcessor from '../chat/status.js'
 import SlamChatProcessor from '../chat/slam.js'
 import TrackerChatProcessor from '../chat/tracker.js'
@@ -94,15 +94,21 @@ class QuickDamageChatProcessor extends ChatProcessor {
   }
 
   matches(line) {
-    let m = line.match(/^[\.\/](.*)/)
-    if (!!m) {
-      this.match = parseForRollOrDamage(m[1])
-      return !!this.match && this.match.action.type == 'damage'
+    this.match = line.match(/^[\.\/](.*?)( +[xX\*]?(?<num>\d+))?$/)
+    if (!!this.match) {
+      this.action = parselink(this.match[1])
+      return this.action?.action?.type == 'damage' || this.action?.action?.type == 'roll'
     }
     return false
   }
   async process(line) {
-    await GURPS.performAction(this.match.action, GURPS.LastActor)
+    let event = { 
+      shiftKey: this.action.action.blindroll, 
+      data: { 
+        repeat: this.match.groups.num
+      }
+    }
+    await GURPS.performAction(this.action.action, GURPS.LastActor, event)
   }
 }
 
@@ -406,13 +412,16 @@ class FpHpChatProcessor extends ChatProcessor {
       targets.map(tid => {
         let ta = game.canvas.tokens.get(tid).actor
         let remote = false
+        var any
         ta.getOwners().forEach(o => { 
-          if (!o.isGM && o.active) {
+          if (!o.isGM && o.active && !any) {
             remote = true
-            remotes.push(tid)
+            any = o
+            remotes.push([o.id, tid])
           }
         })
-        if (!remote) locals.push(tid)
+        if (!remote) locals.push(['', tid])
+        this.priv(`${i18n_f('GURPS.chatSentTo', { cmd: line, name: ta.name })}`)
       })
         
       game.socket?.emit('system.gurps', {
@@ -589,7 +598,7 @@ class RollChatProcessor extends ChatProcessor {
     return '/roll (or /r) [On-the-Fly formula]'
   }
   matches(line) {
-    this.match = line.match(/^(\/roll|\/r|\/private|\/pr) \[([^\]]+)\]/)
+    this.match = line.match(/^(\/roll|\/r|\/private|\/pr|\/sr|\/psr) \[(.+)\] *[xX\*]?(\d+)?/)
     return !!this.match
   }
   async process(line) {
@@ -600,11 +609,29 @@ class RollChatProcessor extends ChatProcessor {
         // only need to show modifiers, everything else does something.
         this.priv(line)
       else this.send() // send what we have
-      return await GURPS.performAction(action.action, GURPS.LastActor, {
-        shiftKey: line.startsWith('/pr'),
+      
+      let actors = [ GURPS.LastActor ]
+      if (line.startsWith('/psr') || line.startsWith('/sr'))
+        actors = canvas.tokens?.controlled.map(t => t.actor)
+      let atLeastOne = false
+      
+      let last = GURPS.LastActor
+      action.action.overridetxt = this.msgs().event?.data?.overridetxt
+      let ev = {
+        shiftKey: line.startsWith('/p') || action.action.blindroll,
         ctrlKey: false,
-        data: {},
-      })
+        data: { 
+          repeat: m[3],
+          overridetxt: action.action.overridetxt
+        }
+      }
+      for (const actor of actors) {
+        GURPS.LastActor = actor
+        let result = await GURPS.performAction(action.action, actor, ev)
+        GURPS.LastActor = last
+        atLeastOne = atLeastOne || result
+      }
+      return atLeastOne
     } // Looks like a /roll OtF, but didn't parse as one
     else ui.notifications.warn(`${i18n('GURPS.chatUnrecognizedFormat')} '[${m[2]}]'`)
     return false
@@ -988,9 +1015,13 @@ class RepeatChatProcessor extends ChatProcessor {
     this.repeatLoop(GURPS.LastActor, this.match[3].trim(), this.match[2]) // We are purposefully NOT waiting for this method, so that it can continue in the background
   }
   async repeatLoop(actor, anim, delay) {
-    actor.RepeatAnimation = true
     if (delay < 20) delay = delay * 1000
     const t = canvas.tokens.placeables.find(e => e.actor == actor)
+    if (!t) {
+      ui.notifications.warn("/repeat only works on 'linked' actors, " + actor.name)
+      return false
+    }
+    actor.RepeatAnimation = true
     while (actor.RepeatAnimation) {
       let p = {
             x: t.position.x + t.w / 2,

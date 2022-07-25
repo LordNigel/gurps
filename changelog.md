@@ -2,6 +2,38 @@
 
 If you can't access the Google doc, here is a [PDF](https://github.com/crnormand/gurps/raw/main/docs/Guide%20for%20GURPS%204e%20on%20Foundry%20VTT.pdf) of the latest version.
 
+Release 0.14.6 - 7/24/2022
+
+- Fixed bug in /sr parsing to allow: /sr [/if ! [!dx] [/st + prone]]
+
+Release 0.14.5 - 7/24/2022
+
+- Fixed pi+ and pi++ parsing on Mook generator
+- Fixed pi++ OTF parsing and damage creation
+- Fixed GCS import exception when using UTF-8
+- Added Legendsmith's BAD status icons
+- Fixed Cast time column for Items
+- Fixed calc on ADs/DisADs so it works like GCS
+- Holding CTRL shows changes in roll mode (GM roll for GMs, Blind roll for Players), w/system setting
+- Fix /hp +1 @target for good?
+- Damage column can now execute OTFs (ex: PDF:B405)
+- OTF now handles HTTP URLs.   [http://google.com], as well as labeled ["Google!"http://google.com]
+- Drag and drop PDF Journal links now open PDFoundry, and not the placeholder Journal
+- Show "flavor" text below roll (issue #1426)
+- Add ability to roll dice or damage multiple times from chat "/r [3d] 5" or "/r [3d cut] 5"
+- Add ability to roll dice or damage multiple times from chat (using compact syntax) "/3d 5" or "/3d cut 5"
+- Fixed initial vtt-notes import from GCS
+- Added warning for /repeat X /anim ... when actor not linked
+- Added "selected roll", /sr [otf], /psr [otf] .   "rolls" (executes) OTF against the selected actors.  /sr [per], /sr [/hp -1d-3!], /sr [/hp reset]
+
+Release 0.14.4 7/7/2022
+
+- Import Portrait image from GCS file, Thanks @Neck!
+- Change UTF reader to "hopefully" support extended characters on Mac and Linux
+- Update code to convert 'BX' PDF references to 'B' references if using the combined PDF (GCS Library update 3.15.1)
+- Update JB2A to 0.4.5
+- Fixed? the possible Mythic Game Master Emulator issue when using Dice so Nice.
+
 Release 0.14.3 5/31/2022
 
 - Update Foundry release
