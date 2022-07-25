@@ -6,15 +6,23 @@
       <div><a id='template-add' class='effect-control button icon' data-action='create'><i class='fas fa-plus'></i></a>
       </div>
       {{#each effects}}
-        <input
-          name='effect-name'
-          class='gcs-input clickable effect-control'
-          data-effect-id='{{id}}'
-          data-action='edit'
-          type='text'
-          readonly
-          value='{{data.label}}'
-        />
+        <div style='display: inline-flex; flex-flow: row nowrap;'>
+          <img
+            class='effect-icon'
+            src='{{data.icon}}'
+            data-edit='icon'
+            style='width: 2em; height: 2em; border: none; align-self: center; margin-right: 3px;'
+          />
+          <input
+            name='effect-name'
+            class='gcs-input clickable effect-control'
+            data-effect-id='{{id}}'
+            data-action='edit'
+            type='text'
+            readonly
+            value='{{data.label}}'
+          />
+        </div>
         <input
           class='effect-control'
           data-action='disable'
