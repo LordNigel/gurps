@@ -1658,7 +1658,7 @@ body {
 }
 
 #tracker-scroller .tracked-resource {
-  margin: -2px 0 -2px -2px;
+  margin: -1px 0 -1px -1px;
 }
 
 #tracker-scroller .header {
@@ -1669,13 +1669,16 @@ body {
   grid-area: combat-trackers;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 0fr min-content;
+  grid-template-rows: 0fr 1fr;
   border: var(--standardborder);
 }
 
 #combat-trackers .tracked-resource {
   width: min-content;
+  /* height: min-content; */
 }
+
+.tracked-resource {}
 
 #combat-trackers > .header {
   border-bottom: 1px solid white;
