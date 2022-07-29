@@ -106,13 +106,17 @@ export default class GurpsToken extends Token {
   async toggleEffect(effect, options) {
     // is this a Posture ActiveEffect?
     if (effect.icon && foundry.utils.getProperty(effect, 'flags.gurps.effect.type') === 'posture') {
+      
       // see if there are other Posture ActiveEffects active
       let existing = this.actor.effects.filter(e => e.getFlag('gurps', 'effect.type') === 'posture')
-      existing = existing.filter(e => e.getFlag('core', 'statusId') !== effect.id)
+
       // if so, toggle them off:
       for (let e of existing) {
         let id = e.getFlag('core', 'statusId')
-        await super.toggleEffect(GURPS.StatusEffect.lookup(id))
+        if (id) await super.toggleEffect(GURPS.StatusEffect.lookup(id))
+        else console.warn(`Corrupt ActiveEffect data on token ${this.name}`)
+        
+        //await super.toggleEffect(e)
       }
     }
     await super.toggleEffect(effect, options)

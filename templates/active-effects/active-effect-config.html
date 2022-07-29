@@ -1,8 +1,7 @@
-<form autocomplete="off">
-
+<form autocomplete="off" class="active-effect-config">
   <!-- Effect Header -->
   <header class="sheet-header">
-    <img class="effect-icon" src="{{data.icon}}" data-edit="icon">
+    <img class="effect-icon" src="{{data.icon}}" data-edit="icon" />
     <h1 class="effect-title">{{ data.label }}</h1>
   </header>
 
@@ -15,7 +14,6 @@
 
   <!-- Details Tab -->
   <section class="tab" data-tab="details">
-
     <div class="form-group">
       <label>{{ localize "EFFECT.Label" }}</label>
       <div class="form-fields">
@@ -51,9 +49,7 @@
           <input type="text" name="origin" value="{{ data.origin }}" disabled />
         </div>
       </div>
-    {{/if}}
-
-    {{#if isItemEffect}}
+    {{/if}} {{#if isItemEffect}}
       <div class="form-group">
         <label>{{ localize "EFFECT.Transfer" }}</label>
         <div class="form-fields">
@@ -126,39 +122,26 @@
     <ol class="changes-list">
       {{#each data.changes as |change i|}}
         <li class="effect-change flexrow" data-index="{{i}}">
-
-          <div class="key">
-            <select name='changes.{{i}}.key'>
+          <div class="key gurps-effect-controls">
+            <select name="changes.{{i}}.key" class='gurps-effect-control' data-action='select-key'>
               {{selectOptions ../changes selected=change.key localize=true}}
-              <option value='other'>&lt;{{i18n 'GURPS.moveModeOther'}}&gt;</option>
+              <!-- <option value="other">&lt;{{i18n 'GURPS.moveModeOther'}}&gt;</option> -->
             </select>
-            <div class='expand-container' style='overflow: hidden; line-height: 0;'>
-              <input id='expand-contract-{{key}}' class='expand-contract splitdr-control contracted' data-action='other'
-                type='text' value='{{i18n type type}}' />
+            <div class="expand-container gurps-effect-controls" style="overflow: hidden; line-height: 0">
+              <input id="expand-contract-{{key}}"
+                class="expand-contract splitdr-control contracted gurps-effect-control" data-action="edit-key"
+                type="text" value="{{i18n type type}}" />
             </div>
           </div>
-
-          <!-- <div style='display: flex; flex-flow: column nowrap'>
-            <select class='splitdr-control' data-action='type' style='width: 100%;'>
-              {{#each (damageTypeOptions key)}}
-                <option value='{{this}}' {{select-if this key}}>{{i18n (concat 'GURPS.damageAbbrev' this) this}}
-                </option>
-              {{/each}}
-              <option value='other'>&lt;{{i18n 'GURPS.moveModeOther'}}&gt;</option>
-            </select>
-            <div class='expand-container' style='overflow: hidden; line-height: 0;'>
-              <input id='expand-contract-splitdr' class='expand-contract splitdr-control contracted' data-action='other'
-                type='text' value='{{i18n type type}}' />
-            </div>
-          </div> -->
-
-          <div class="mode">
-            <select name="changes.{{i}}.mode" data-dtype="Number">
+          <div class="mode" class='gurps-effect-controls'>
+            <select name="changes.{{i}}.mode" data-dtype="Number" class='gurps-effect-control'
+              data-action='select-mode'>
               {{selectOptions ../modes selected=change.mode}}
             </select>
           </div>
-          <div class="value">
-            <input type="text" name="changes.{{i}}.value" value="{{change.value}}" />
+          <div class="value" class='gurps-effect-controls'>
+            <input class='gurps-effect-control' type="text" name="changes.{{i}}.value" value="{{localize change.value}}"
+              data-action="edit" data-value="{{change.value}}" />
           </div>
           <div class="effect-controls">
             <a class="effect-control" data-action="delete"><i class="fas fa-trash"></i></a>

@@ -258,15 +258,17 @@ export default class GurpsActiveEffect extends ActiveEffect {
     if (getProperty(this, 'duration.duration') && getProperty(this, 'duration.remaining') <= 1) return true
 
     if (!!this.endCondition) {
-      let action = parselink(this.endCondition)
+      if (game.settings.get(SYSTEM_NAME, ACTIVE_EFFECT_AUTOREMOVE)) {
+        let action = parselink(this.endCondition)
 
-      if (getProperty(action, 'type') !== 'modifier')
-        return await GURPS.performAction(action.action, this.parent, {
-          shiftKey: false,
-          ctrlKey: false,
-          data: {},
-        })
-      else return this._badEndCondition(this.endCondition)
+        if (getProperty(action, 'type') !== 'modifier')
+          return await GURPS.performAction(action.action, this.parent, {
+            shiftKey: false,
+            ctrlKey: false,
+            data: {},
+          })
+        else return this._badEndCondition(this.endCondition)
+      }
     }
 
     return false

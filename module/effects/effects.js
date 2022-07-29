@@ -960,13 +960,12 @@ const _getActiveEffectsData = function (id) {
 // data.attributes.ST.import
 
 export const GURPSActiveEffectsChanges = {
-  'data.conditions.exhausted': 'GURPS.exhausted',
-  'data.conditions.maneuver': 'GURPS.maneuver',
-  'data.conditions.posture': 'GURPS.posture',
-  'data.conditions.reeling': 'GURPS.reeling',
-  'data.conditions.self.modifiers': 'GURPS.selfModifiers',
-  'data.conditions.target.modifiers': 'GURPS.targetModifiers',
-  'data.moveoverride.maneuver': 'GURPS.moveManeuver',
-  'data.moveoverride.posture': 'GURPS.movePosture',
-  'data.attributes.ST.import': 'GURPS.strength',
+  'data.conditions.self.modifiers': 'gurps.effects.selfModifier',
+  'data.conditions.target.modifiers': 'gurps.effects.targetModifier',
+  'data.conditions.exhausted': 'gurps.effects.exhausted',
+  'data.conditions.reeling': 'gurps.effects.reeling',
+  'data.attributes.ST.import': 'gurps.effects.strength',
+  'data.conditions.posture': 'gurps.effects.posture',
+  'data.moveoverride.posture': 'gurps.effects.moveOverride',
+  'data.conditions.maneuver': 'gurps.effects.maneuver',
 }

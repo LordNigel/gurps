@@ -1142,5 +1142,18 @@
   "GURPS.quicknotes": "Quick Notes",
   "GURPS.language": "Language",
   "GURPS.spoken": "Spoken",
-  "GURPS.written": "Written"
+  "GURPS.written": "Written",
+
+  "gurps": {
+    "effects": {
+      "selfModifier": "Self Modifier",
+      "targetModifier": "Target Modifier",
+      "exhausted": "Exhausted",
+      "reeling": "Reeling",
+      "strength": "Strength",
+      "moveOverride": "Move Override",
+      "posture": "Posture",
+      "maneuver": "Manuever"
+    }
+  }
 }

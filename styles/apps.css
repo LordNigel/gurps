@@ -2294,3 +2294,7 @@ button.equipmentbutton:last-child {
 #spells .tooltip {
   min-width: 200px;
 }
+
+.active-effect-config img {
+  border: none;
+}
