@@ -255,7 +255,7 @@ export default class GurpsActiveEffect extends ActiveEffect {
   // TODO Any ActiveEffect with a flags.core.statusId is by default a temporary effect and will be added as an icon to the token.
 
   async isExpired() {
-    if (getProperty(this, 'duration.duration') && getProperty(this, 'duration.remaining') <= 1) return true
+    if (getProperty(this, 'duration.duration') && getProperty(this, 'duration.remaining') <= 0) return true
 
     if (!!this.endCondition) {
       if (game.settings.get(SYSTEM_NAME, ACTIVE_EFFECT_AUTOREMOVE)) {

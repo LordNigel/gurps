@@ -23,7 +23,9 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
    * @param {MouseEvent} event      The originating click event
    * @private
    */
-  _onEffectControl(event) {}
+  _onEffectControl(event) {
+    console.log('stuff')
+  }
 
   /** @inheritdoc */
   async _updateObject(event, formData) {
