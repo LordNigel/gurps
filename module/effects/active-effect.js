@@ -38,12 +38,18 @@ export default class GurpsActiveEffect extends ActiveEffect {
       Hooks.on('deleteActiveEffect', GurpsActiveEffect._delete)
       Hooks.on('updateCombat', GurpsActiveEffect._updateCombat)
 
+      /**
+       * Override the duration getter on the base ActiveEffect class.
+       */
       const oldDuration = Object.getOwnPropertyDescriptor(ActiveEffect.prototype, 'duration')
-
       Object.defineProperty(ActiveEffect.prototype, 'duration', {
         get: function () {
+          // Get the duration from the original implementation.
           let results = oldDuration?.get?.call(this)
 
+          // Do GURPS-specific stuff.
+
+          // Handle termination conditions.
           if (results.type === 'none') {
             // check if there is a termination condition
             const d = this.data.duration
@@ -133,13 +139,23 @@ export default class GurpsActiveEffect extends ActiveEffect {
    */
   static async _updateCombat(combat, _data, _options, _userId) {
     // get previous combatant { round: 6, turn: 0, combatantId: 'id', tokenId: 'id' }
+    /**
+     * Most (all?) effects based on turns expire at the end of an actor's turn.
+     * So, when we update the combat, we go back to the /previous/ actor and
+     * check for expired effects.
+     *
+     * An exception to this is my perhaps misguided "maneuver as active effect" code.
+     * In that case, the effect expires at the /start/ of the player's turn.
+     */
+
+    //  Handle "End of Turn" effects
     let previous = combat.previous
     if (previous.tokenId) {
       let token = canvas.tokens?.get(previous.tokenId)
 
       // go through all effects, removing those that have expired
       if (token && token.actor) {
-        for (const effect of token.actor.effects) {
+        for (const effect of token.actor.effects.filter(it => getProperty(it, 'data.flags.gurps.effect.endOfTurn'))) {
           if (await effect.isExpired()) {
             ui.notifications.info(
               `${i18n('GURPS.effectExpired', 'Effect has expired: ')} '[${i18n(effect.data.label)}]'`
