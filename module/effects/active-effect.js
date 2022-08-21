@@ -152,20 +152,29 @@ export default class GurpsActiveEffect extends ActiveEffect {
     let previous = combat.previous
     if (previous.tokenId) {
       let token = canvas.tokens?.get(previous.tokenId)
+      GurpsActiveEffect._removeExpiredEffects(token, true)
+    }
 
-      // go through all effects, removing those that have expired
-      if (token && token.actor) {
-        for (const effect of token.actor.effects.filter(it => getProperty(it, 'data.flags.gurps.effect.endOfTurn'))) {
-          if (await effect.isExpired()) {
-            ui.notifications.info(
-              `${i18n('GURPS.effectExpired', 'Effect has expired: ')} '[${i18n(effect.data.label)}]'`
-            )
-            if (
-              GurpsActiveEffect.autoremove
-              // game.settings.get(SYSTEM_NAME, ACTIVE_EFFECT_AUTOREMOVE)
-            )
-              effect.delete()
-          }
+    // Handle "Start of Turn" effects
+    let token = canvas.tokens?.get(combat.current.tokenId)
+    GurpsActiveEffect._removeExpiredEffects(token, false)
+  }
+
+  // TODO Maneuver icons are not showing up with this last change!
+
+  static async _removeExpiredEffects(token, endOfTurn) {
+    const operator = function (x) {
+      if (!x) return false
+      return endOfTurn ? x : !x
+    }
+
+    if (token && token.actor) {
+      for (const effect of token.actor.effects.filter(it =>
+        operator(getProperty(it, 'data.flags.gurps.effect.endOfTurn'))
+      )) {
+        if (await effect.isExpired()) {
+          ui.notifications.info(`${i18n('GURPS.effectExpired', 'Effect has expired: ')} '[${i18n(effect.data.label)}]'`)
+          if (GurpsActiveEffect.autoremove) effect.delete()
         }
       }
     }
