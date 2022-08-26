@@ -189,4 +189,4 @@ export let teleport = async (tokenDocument, targetScene, xpos, ypos) => {
     //@ts-ignore
     CanvasAnimation.terminateAnimation(`Token.${tokenDocument.id}.animateMovement`);
     return await targetScene.view();
-};
+}; 

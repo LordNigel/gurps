@@ -47,7 +47,7 @@ export default class GurpsActiveEffect extends ActiveEffect {
           // Get the duration from the original implementation.
           let results = oldDuration?.get?.call(this)
 
-          // Do GURPS-specific stuff.
+          // === Do GURPS-specific stuff. ===
 
           // Handle termination conditions.
           if (results.type === 'none') {
