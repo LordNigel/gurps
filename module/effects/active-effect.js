@@ -37,6 +37,7 @@ export default class GurpsActiveEffect extends ActiveEffect {
       Hooks.on('updateActiveEffect', GurpsActiveEffect._update)
       Hooks.on('deleteActiveEffect', GurpsActiveEffect._delete)
       Hooks.on('updateCombat', GurpsActiveEffect._updateCombat)
+      Hooks.on('updateWorldTime', GurpsActiveEffect._updateWorldTime)
 
       /**
        * Override the duration getter on the base ActiveEffect class.
@@ -160,7 +161,11 @@ export default class GurpsActiveEffect extends ActiveEffect {
     GurpsActiveEffect._removeExpiredEffects(token, false)
   }
 
-  // TODO Maneuver icons are not showing up with this last change!
+  static async _updateWorldTime(worldTime, dt) {
+    // When the worldTime is updated, go through all tokens and check for any ActiveEffects that have expired.
+    canvas.tokens.placeables
+      .forEach(async t => await GurpsActiveEffect._removeExpiredEffects(t, false))
+  }
 
   static async _removeExpiredEffects(token, endOfTurn) {
     const operator = function (x) {
@@ -169,12 +174,17 @@ export default class GurpsActiveEffect extends ActiveEffect {
     }
 
     if (token && token.actor) {
-      for (const effect of token.actor.effects.filter(it =>
-        operator(getProperty(it, 'data.flags.gurps.effect.endOfTurn'))
-      )) {
-        if (await effect.isExpired()) {
-          ui.notifications.info(`${i18n('GURPS.effectExpired', 'Effect has expired: ')} '[${i18n(effect.data.label)}]'`)
-          if (GurpsActiveEffect.autoremove) effect.delete()
+      for (const effect of token.actor.effects.contents) {
+        if (endOfTurn && getProperty(effect, 'data.flags.gurps.effect.endOfTurn')) {
+          if (await effect.isExpired()) {
+            ui.notifications.info(`${i18n('GURPS.effectExpired', 'Effect has expired: ')} '[${i18n(effect.data.label)}]'`)
+            if (GurpsActiveEffect.autoremove) effect.delete()
+          }
+        } if (!endOfTurn && !getProperty(effect, 'data.flags.gurps.effect.endOfTurn')) {
+          if (await effect.isExpired()) {
+            ui.notifications.info(`${i18n('GURPS.effectExpired', 'Effect has expired: ')} '[${i18n(effect.data.label)}]'`)
+            if (GurpsActiveEffect.autoremove) effect.delete()
+          }
         }
       }
     }
