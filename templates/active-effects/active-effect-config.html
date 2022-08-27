@@ -125,7 +125,7 @@
       {{#each data.changes as |change i|}}
         <li class="effect-change flexrow" data-index="{{i}}">
           <div class="key gurps-effect-controls">
-            <select name="changes.{{i}}.key" class='gurps-effect-control' data-action='select-key'>
+            <select name="changes.{{i}}.key" class='gurps-effect-control' data-action='select-key' data-index='{{i}}'>
               {{selectOptions ../changes selected=change.key localize=true}}
               <!-- <option value="other">&lt;{{i18n 'GURPS.moveModeOther'}}&gt;</option> -->
             </select>
@@ -144,6 +144,19 @@
           <div class="value" class='gurps-effect-controls'>
             <input class='gurps-effect-control' type="text" name="changes.{{i}}.value" value="{{localize change.value}}"
               data-action="edit" data-value="{{change.value}}" />
+            <select name='changes.{{i}}.value' data-dtype='Text' class='gurps-effect-control'
+              data-action='select-boolean' style='display: none'>
+              <option value='true'>{{i18n 'gurps.general.true' 'True'}}</option>
+              <option value='false'>{{i18n 'gurps.general.false' 'False'}}</option>
+            </select>
+            <select name='changes.{{i}}.value' data-dtype='Text' class='gurps-effect-control'
+              data-action='select-posture' style='display: none'>
+              <option value='standing'>{{i18n 'GURPS.STATUSStanding'}}</option>
+              {{#each (listAllPostures) as |this key|}}
+                <option value='{{key}}'>{{i18n this.label}}</option>
+              {{/each}}
+            </select>
+
           </div>
           <div class="effect-controls">
             <a class="effect-control" data-action="delete"><i class="fas fa-trash"></i></a>

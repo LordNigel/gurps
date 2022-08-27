@@ -22,9 +22,8 @@ export default class GurpsActiveEffectListSheet extends Application {
 
   getData() {
     const sheetData = super.getData()
-    sheetData.effects = this.actor.getEmbeddedCollection('ActiveEffect').contents
-    for (const effect of sheetData.effects) {
-    }
+    // Remove maneuver from this list.
+    sheetData.effects = this.actor.getEmbeddedCollection('ActiveEffect').contents // .filter(e => e.getFlag('core', 'statusId') != 'maneuver')
     return sheetData
   }
 
@@ -59,7 +58,7 @@ export default class GurpsActiveEffectListSheet extends Application {
       case 'edit':
         return effect.sheet.render(true, { parentWindow: this })
       case 'disable':
-        await effect.update({disabled: !effect.data.disabled})
+        await effect.update({ disabled: !effect.data.disabled })
         return this.render(true)
     }
   }
