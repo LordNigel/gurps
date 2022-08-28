@@ -12,6 +12,9 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
   getData() {
     const sheetData = super.getData()
     sheetData.changes = GURPSActiveEffectsChanges
+    sheetData.changeArrays = {
+      text: [],
+    }
     return sheetData
   }
 
@@ -41,7 +44,7 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
 
       // Reset Mode control to enabled.
       let modeSelect = html.find(`select[name='changes.${effectIndex}.mode']`)
-      modeSelect.prop('disabled', false)
+      // modeSelect.prop('disabled', false)
 
       const overrideKeys = [
         'data.conditions.exhausted',
@@ -53,34 +56,14 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
       if (overrideKeys.includes(value)) {
         // The only valid change mode is 'Add'. Change the Change Mode select to 'Add' and disable it.
         modeSelect.prop('selectedIndex', OVERRIDE)
-        modeSelect.prop('disabled', true)
       }
-
-      html.find(VALUE_ELEMENT).css('display', 'none')
 
       // If the new Key is 'Target Modifier' or 'Self Modifier':
       if (['data.conditions.target.modifiers', 'data.conditions.self.modifiers'].includes(value)) {
         // The only valid change mode is 'Add'. Change the Change Mode select to 'Add' and disable it.
         modeSelect.prop('selectedIndex', ADD)
-        modeSelect.prop('disabled', true)
       }
-
-      if (['data.conditions.exhausted', 'data.conditions.reeling'].includes(value)) {
-        this._setValueColumnDisplay(html, 'select-boolean')
-      } else if (['data.conditions.posture'].includes(value)) {
-        this._setValueColumnDisplay(html, 'select-posture')
-      } else if (['data.conditions.maneuver'].includes(value)) {
-        this._setValueColumnDisplay(html, 'select-maneuver')
-      } else {
-        this._setValueColumnDisplay(html, 'edit')
-      }
-
-      console.log(event.currentTarget.selectedIndex)
     }
-  }
-
-  _setValueColumnDisplay(html, value) {
-    html.find(VALUE_ELEMENT + `[data-action='${value}']`).css('display', 'block')
   }
 
   /** @inheritdoc */
