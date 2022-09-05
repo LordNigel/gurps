@@ -26,7 +26,6 @@ const booleanValue = ['data.conditions.exhausted', 'data.conditions.reeling']
 
 export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
   static onRender(formApp, html, data) {
-    console.log(html)
     let index = 0
     let key = html.find(`select[name='changes.${index}.key']`)
     while (!!key && key.length) {
