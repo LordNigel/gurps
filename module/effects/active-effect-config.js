@@ -56,7 +56,6 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
       mode.removeClass('gurps-ignore')
       mode.find(`option`).prop('disabled', false)
     }
-//    mode.prop('disabled', singleModeAllowed.includes(currentKey))
 
     // Get all the alternative widgets for this effect.
     // For the appropriate one, set its visibility and name so that it is wired into the object model.
@@ -123,7 +122,7 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
     if (!!newEndCondition && !this.object.getFlag('core', 'statusId')) {
       setProperty(formData, 'flags.core.statusId', this.object.getFlag('core', 'statusId'))
     }
-    
+
     delete formData.DUMMY
 
     console.log(formData)
