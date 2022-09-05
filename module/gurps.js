@@ -1184,7 +1184,7 @@ if (!globalThis.GURPS) {
     let best = 0
     if (!isSpellOnly)
       recurselist(actor.skills, s => {
-        if (s.name.match(skillRegExp) && s.level > best) {
+        if (s.name?.match(skillRegExp) && s.level > best) {
           t = s
           best = parseInt(s.level)
         }
@@ -1192,7 +1192,7 @@ if (!globalThis.GURPS) {
     if (!t)
       if (!isSkillOnly)
         recurselist(actor.spells, s => {
-          if (s.name.match(skillRegExp) && s.level > best) {
+          if (s.name?.match(skillRegExp) && s.level > best) {
             t = s
             best = parseInt(s.level)
           }
@@ -2283,7 +2283,12 @@ if (!globalThis.GURPS) {
     // @ts-ignore
     game.socket.on('system.gurps', async resp => {
       if (resp.type == 'updatebucket') {
-        if (resp.users.includes(game.user.id)) GURPS.ModifierBucket.updateModifierBucket(resp.bucket)
+        if (resp.users.includes(game.user.id)) {
+          if (resp.add) {
+            resp.bucket.modifierList.forEach(e => GURPS.ModifierBucket.addModifier(e.mod, e.desc))
+          } else
+            GURPS.ModifierBucket.updateModifierBucket(resp.bucket)
+        }
       }
       if (resp.type == 'initiativeChanged') {
         CONFIG.Combat.initiative = {
