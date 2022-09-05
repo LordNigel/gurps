@@ -2304,3 +2304,7 @@ button.equipmentbutton:last-child {
   border: none;
   background: inherit;
 }
+
+.active-effect-sheet .effect-change .key {
+  flex: 1;
+}

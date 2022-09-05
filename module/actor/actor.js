@@ -613,7 +613,7 @@ export class GurpsActor extends Actor {
     if (foundry.utils.getProperty(this.data, PROPERTY_MOVEOVERRIDE_MANEUVER)) {
       let value = foundry.utils.getProperty(this.data, PROPERTY_MOVEOVERRIDE_MANEUVER)
       let mv = GURPS.Maneuvers.get(this.getGurpsActorData().conditions.maneuver)
-      let reason = !!mv ? i18n(mv).label : ''
+      let reason = !!mv ? i18n(mv.label) : ''
 
       adjustment = this._adjustMove(move, threshold, value, reason)
     }
