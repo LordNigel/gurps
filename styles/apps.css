@@ -2298,3 +2298,9 @@ button.equipmentbutton:last-child {
 .active-effect-config img {
   border: none;
 }
+
+.gurps-ignore {
+  appearance: none;
+  border: none;
+  background: inherit;
+}

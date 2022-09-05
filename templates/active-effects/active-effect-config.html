@@ -135,12 +135,14 @@
                 type='text' value='{{i18n type type}}' />
             </div>
           </div>
+
           <div class='mode' class='gurps-effect-controls'>
             <select name='changes.{{i}}.mode' data-dtype='Number' class='gurps-effect-control'
               data-action='select-mode'>
               {{selectOptions ../modes selected=change.mode}}
             </select>
           </div>
+
           <div class='value' class='gurps-effect-controls'>
             <select name='changes.{{i}}.value' class='gurps-effect-control' data-index='{{i}}' data-dtype='text'
               data-action='select-boolean'>

@@ -2,6 +2,7 @@ import { GURPSActiveEffectsChanges } from './effects.js'
 
 const ADD = 2
 const OVERRIDE = 5
+const CUSTOM = 0
 const VALUE_ELEMENT = 'div.value .gurps-effect-control'
 
 // Change keys that should only allow mode = OVERRIDE
@@ -9,7 +10,7 @@ const overrideKeys = [
   'data.conditions.exhausted',
   'data.conditions.reeling',
   'data.conditions.posture',
-  'data.conditions.maneuver',
+  // 'data.conditions.maneuver',
 ]
 
 // Change keys that allow for a single mode value
@@ -42,15 +43,20 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
     if (overrideKeys.includes(currentKey)) {
       // The only valid change mode is 'Override'. Change the Change Mode select to 'Override' and disable it.
       mode.prop('selectedIndex', OVERRIDE)
-    }
-
-    // If the new Key is 'Target Modifier' or 'Self Modifier':
-    if (['data.conditions.target.modifiers', 'data.conditions.self.modifiers'].includes(currentKey)) {
-      // The only valid change mode is 'Add'. Change the Change Mode select to 'Add' and disable it.
+    } else if (currentKey === 'data.conditions.maneuver') {
+      mode.prop('selectedIndex', CUSTOM)
+    } else if (['data.conditions.target.modifiers', 'data.conditions.self.modifiers'].includes(currentKey)) {
       mode.prop('selectedIndex', ADD)
     }
 
-    mode.prop('disabled', singleModeAllowed.includes(currentKey))
+    if (singleModeAllowed.includes(currentKey)) {
+      mode.addClass('gurps-ignore')
+      mode.find(`option:not(:selected)`).prop('disabled', true)
+    } else {
+      mode.removeClass('gurps-ignore')
+      mode.find(`option`).prop('disabled', false)
+    }
+//    mode.prop('disabled', singleModeAllowed.includes(currentKey))
 
     // Get all the alternative widgets for this effect.
     // For the appropriate one, set its visibility and name so that it is wired into the object model.
@@ -101,6 +107,7 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
     let action = event.currentTarget.dataset.action
 
     if (type === 'click' && ['add', 'delete'].includes(action)) return super._onEffectControl(event)
+
     if (type === 'change' && action === 'select-key') {
       let effectIndex = event.currentTarget.dataset.index
       GurpsActiveEffectConfig._adjustElements(html, effectIndex)
@@ -116,6 +123,10 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
     if (!!newEndCondition && !this.object.getFlag('core', 'statusId')) {
       setProperty(formData, 'flags.core.statusId', this.object.getFlag('core', 'statusId'))
     }
+    
+    delete formData.DUMMY
+
+    console.log(formData)
 
     let result = await super._updateObject(event, formData)
 
