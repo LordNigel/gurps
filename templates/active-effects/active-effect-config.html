@@ -123,6 +123,7 @@
     </header>
     <ol class='changes-list'>
       {{#each data.changes as |change i|}}
+        {{debug change}}
         <li class='effect-change flexrow' data-index='{{i}}'>
           <div class='key gurps-effect-controls'>
             <select name='changes.{{i}}.key' class='gurps-effect-control' data-action='select-key' data-index='{{i}}'>
@@ -136,26 +137,18 @@
             </div>
           </div>
           <div class='mode' class='gurps-effect-controls'>
-            <select name='changes.{{i}}.mode' data-dtype='Number' class='gurps-effect-control' data-action='select-mode' {{disabled (or 
-                (eq change.key 'data.conditions.self.modifiers')
-                (eq change.key 'data.conditions.target.modifiers')
-                (eq change.key 'data.conditions.exhausted')
-                (eq change.key 'data.conditions.reeling')
-                (eq change.key 'data.conditions.posture')
-                (eq change.key 'data.conditions.maneuver')
-              ) }}>
+            <select name='changes.{{i}}.mode' data-dtype='Number' class='gurps-effect-control'
+              data-action='select-mode'>
               {{selectOptions ../modes selected=change.mode}}
             </select>
           </div>
           <div class='value' class='gurps-effect-controls'>
-            {{#if (or (eq change.key 'data.conditions.exhausted') (eq change.key 'data.conditions.reeling'))}}
               <select name='changes.{{i}}.value' class='gurps-effect-control' data-index='{{i}}' data-dtype='text'
                 data-action='select-boolean'>
                 <option value='true' {{select-if change.value 'true'}}>{{i18n 'gurps.general.true' 'True'}}</option>
                 <option value='false' {{select-if-not change.value 'true'}}>{{i18n 'gurps.general.false' 'False'}}
                 </option>
               </select>
-            {{else if (eq change.key 'data.conditions.posture')}}
               <select name='changes.{{i}}.value' class='gurps-effect-control' data-index='{{i}}' data-dtype='text'
                 data-action='select-posture'>
                 <option value='standing'>{{i18n 'GURPS.STATUSStanding'}}</option>
@@ -163,17 +156,14 @@
                   <option value='{{key}}'>{{i18n this.label}}</option>
                 {{/each}}
               </select>
-            {{else if (eq change.key 'data.conditions.maneuver')}}
               <select name='changes.{{i}}.value' class='gurps-effect-control' data-index='{{i}}' data-dtype='text'
                 data-action='select-maneuver'>
                 {{#each (listAllManeuvers) as |this key|}}
                   <option value='{{key}}'>{{i18n this.label}}</option>
                 {{/each}}
               </select>
-            {{else}}
               <input name='changes.{{i}}.value' class='gurps-effect-control' data-index='{{i}}' type='text'
                 data-action='edit' data-value='{{change.value}}' value='{{localize change.value}}' />
-            {{/if}}
           </div>
           <div class='effect-controls'>
             <a class='effect-control' data-action='delete'><i class='fas fa-trash'></i></a>

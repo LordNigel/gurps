@@ -510,8 +510,7 @@ if (!globalThis.GURPS) {
       )}\n${action.orig}`
 
       if (!!action.overridetxt) {
-        if (!event.data)
-          event.data = {}
+        if (!event.data) event.data = {}
         event.data.overridetxt = action.overridetxt
       }
       // @ts-ignore - someone somewhere must have added chatmsgData to the MouseEvent.
@@ -530,8 +529,7 @@ if (!globalThis.GURPS) {
           if (j) {
             if (j.data.flags.pdfoundry) {
               handlePdf(j.data.flags.pdfoundry.PDFData.code)
-            } else
-              j.sheet?.render(true)
+            } else j.sheet?.render(true)
           }
           return true
         case 'Actor':
@@ -832,7 +830,7 @@ if (!globalThis.GURPS) {
         event,
         obj: att, // save the attack in the optional parameters, in case it has rcl/rof
         followon: followon,
-        text: ''
+        text: '',
       }
       let targetmods = []
       if (opt.obj.checkotf && !(await GURPS.executeOTF(opt.obj.checkotf, false, event))) return false
@@ -894,7 +892,7 @@ if (!globalThis.GURPS) {
       if (!!action.costs) GURPS.ModifierBucket.addModifier(0, action.costs)
       if (!!action.mod) GURPS.ModifierBucket.addModifier(action.mod, action.desc, targetmods)
       const chatthing = thing === '' ? att.name + mode : `[B:"${thing}${mode}"]`
- 
+
       return doRoll({
         actor,
         targetmods,
@@ -1012,7 +1010,7 @@ if (!globalThis.GURPS) {
         event: event,
         action: action,
         obj: action.obj,
-        text: ''
+        text: '',
       }
       if (opt.obj?.checkotf && !(await GURPS.executeOTF(opt.obj.checkotf, false, event))) return false
       if (opt.obj?.duringotf) await GURPS.executeOTF(opt.obj.duringotf, false, event)
@@ -1073,7 +1071,7 @@ if (!globalThis.GURPS) {
         event,
         action,
         obj: action.obj,
-        text: ''
+        text: '',
       }
       if (opt.obj?.checkotf && !(await GURPS.executeOTF(opt.obj.checkotf, false, event))) return false
       if (opt.obj?.duringotf) await GURPS.executeOTF(opt.obj.duringotf, false, event)
@@ -1129,7 +1127,7 @@ if (!globalThis.GURPS) {
     },
     href({ action, actor, event, originalOtf, calcOnly }) {
       window.open(action.orig, action.label)
-    }
+    },
   }
   GURPS.actionFuncs = actionFuncs
 
@@ -1304,7 +1302,8 @@ if (!globalThis.GURPS) {
         //let result = parseForRollOrDamage(part.trim())
         let result = parselink(part.trim())
         if (result?.action) {
-          if (options?.combined && result.action.type == 'damage') result.action.formula = multiplyDice(result.action.formula, options.combined)
+          if (options?.combined && result.action.type == 'damage')
+            result.action.formula = multiplyDice(result.action.formula, options.combined)
           performAction(result.action, actor, event, options?.targets)
         }
       }
@@ -2019,7 +2018,10 @@ if (!globalThis.GURPS) {
               content: cmd,
             }
             ChatMessage.create(messageData, {})
-          } else $(document).find('#chat-message').val($(document).find('#chat-message').val() + cmd)
+          } else
+            $(document)
+              .find('#chat-message')
+              .val($(document).find('#chat-message').val() + cmd)
         }
       }
       if (!!chat) chat.addEventListener('drop', event => dropHandler(event, false))
@@ -2036,7 +2038,7 @@ if (!globalThis.GURPS) {
     Hooks.on('renderActorSheet', (...args) => {
       colorGurpsActorSheet()
     })
-    
+
     // Listen for the Ctrl key and toggle the roll mode (to show the behaviour we currently do anyway)
     game.keybindings.register('gurps', 'toggleDiceDisplay', {
       name: 'Toggle dice display',
@@ -2440,7 +2442,7 @@ if (!globalThis.GURPS) {
       default: 'Tabbed Sheet',
       onChange: value => console.log(`${Settings.SETTING_ALT_SHEET}: ${value}`),
     })
-    
+
     GurpsToken.ready()
     TriggerHappySupport.init()
 

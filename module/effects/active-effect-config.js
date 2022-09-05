@@ -4,7 +4,73 @@ const ADD = 2
 const OVERRIDE = 5
 const VALUE_ELEMENT = 'div.value .gurps-effect-control'
 
+// Change keys that should only allow mode = OVERRIDE
+const overrideKeys = [
+  'data.conditions.exhausted',
+  'data.conditions.reeling',
+  'data.conditions.posture',
+  'data.conditions.maneuver',
+]
+
+// Change keys that allow for a single mode value
+const singleModeAllowed = [
+  'data.conditions.self.modifiers',
+  'data.conditions.target.modifiers',
+  'data.conditions.exhausted',
+  'data.conditions.reeling',
+  'data.conditions.posture',
+  'data.conditions.maneuver',
+]
+
+const booleanValue = ['data.conditions.exhausted', 'data.conditions.reeling']
+
 export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
+  static onRender(formApp, html, data) {
+    console.log(html)
+    let index = 0
+    let key = html.find(`select[name='changes.${index}.key']`)
+    while (!!key && key.length) {
+      GurpsActiveEffectConfig._adjustElements(html, index)
+      key = html.find(`select[name='changes.${++index}.key']`)
+    }
+  }
+
+  static _adjustElements(html, index) {
+    let key = html.find(`select[name='changes.${index}.key']`)
+    let mode = html.find(`select[name='changes.${index}.mode']`)
+    let currentKey = key[0].value
+
+    if (overrideKeys.includes(currentKey)) {
+      // The only valid change mode is 'Override'. Change the Change Mode select to 'Override' and disable it.
+      mode.prop('selectedIndex', OVERRIDE)
+    }
+
+    // If the new Key is 'Target Modifier' or 'Self Modifier':
+    if (['data.conditions.target.modifiers', 'data.conditions.self.modifiers'].includes(currentKey)) {
+      // The only valid change mode is 'Add'. Change the Change Mode select to 'Add' and disable it.
+      mode.prop('selectedIndex', ADD)
+    }
+
+    mode.prop('disabled', singleModeAllowed.includes(currentKey))
+
+    // Get all the alternative widgets for this effect.
+    // For the appropriate one, set its visibility and name so that it is wired into the object model.
+    let valueWidgets = html.find(`ol.changes-list li div.value:eq(${index})`).find('> *')
+    // First set them all to invisible:
+    valueWidgets.hide()
+    // Second set the name to DUMMY.changes.${index}.value
+    valueWidgets.prop('name', `DUMMY.changes.${index}.value`)
+
+    // Find the one that should be set:
+    let widget = valueWidgets.filter(`[data-action='edit']`)
+    if (booleanValue.includes(currentKey)) widget = valueWidgets.filter(`[data-action='select-boolean']`)
+    else if (currentKey === 'data.conditions.posture') widget = valueWidgets.filter(`[data-action='select-posture']`)
+    else if (currentKey === 'data.conditions.maneuver') widget = valueWidgets.filter(`[data-action='select-maneuver']`)
+
+    widget.prop('name', `changes.${index}.value`)
+    widget.show()
+  }
+
   get template() {
     return 'systems/gurps/templates/active-effects/active-effect-config.html'
   }
@@ -21,7 +87,7 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
   /** @inheritdoc */
   activateListeners(html) {
     super.activateListeners(html)
-    html.find('.gurps-effect-control').on('click change', this._onEffectControl.bind(this, html))
+    html.find('.gurps-effect-control').on('click change', this._onGurpsEffectControl.bind(this, html))
   }
 
   /**
@@ -30,7 +96,7 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
    * @param {MouseEvent} event      The originating click event
    * @private
    */
-  _onEffectControl(html, event) {
+  _onGurpsEffectControl(html, event) {
     // <select name="changes.0.key" class="gurps-effect-control" data-action="select-key">
     let type = event.type
     let action = event.currentTarget.dataset.action
@@ -38,31 +104,7 @@ export default class GurpsActiveEffectConfig extends ActiveEffectConfig {
     if (type === 'click' && ['add', 'delete'].includes(action)) return super._onEffectControl(event)
     if (type === 'change' && action === 'select-key') {
       let effectIndex = event.currentTarget.dataset.index
-      let options = event.currentTarget.options
-      let keyIndex = event.currentTarget.selectedIndex
-      let value = options[keyIndex].value
-
-      // Reset Mode control to enabled.
-      let modeSelect = html.find(`select[name='changes.${effectIndex}.mode']`)
-      // modeSelect.prop('disabled', false)
-
-      const overrideKeys = [
-        'data.conditions.exhausted',
-        'data.conditions.reeling',
-        'data.conditions.posture',
-        'data.conditions.maneuver',
-      ]
-
-      if (overrideKeys.includes(value)) {
-        // The only valid change mode is 'Add'. Change the Change Mode select to 'Add' and disable it.
-        modeSelect.prop('selectedIndex', OVERRIDE)
-      }
-
-      // If the new Key is 'Target Modifier' or 'Self Modifier':
-      if (['data.conditions.target.modifiers', 'data.conditions.self.modifiers'].includes(value)) {
-        // The only valid change mode is 'Add'. Change the Change Mode select to 'Add' and disable it.
-        modeSelect.prop('selectedIndex', ADD)
-      }
+      GurpsActiveEffectConfig._adjustElements(html, effectIndex)
     }
   }
 

@@ -38,6 +38,7 @@ export default class GurpsActiveEffect extends ActiveEffect {
       Hooks.on('deleteActiveEffect', GurpsActiveEffect._delete)
       Hooks.on('updateCombat', GurpsActiveEffect._updateCombat)
       Hooks.on('updateWorldTime', GurpsActiveEffect._updateWorldTime)
+      Hooks.on('renderGurpsActiveEffectConfig', GurpsActiveEffectConfig.onRender)
 
       /**
        * Override the duration getter on the base ActiveEffect class.
